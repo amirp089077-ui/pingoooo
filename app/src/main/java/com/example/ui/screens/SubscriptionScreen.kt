@@ -115,9 +115,9 @@ fun SubscriptionScreen(
                         icon = Icons.Default.Refresh,
                         contentDescription = "Sync",
                         onClick = {
-                            viewModel.syncWithFirestore()
+                            viewModel.syncWithServer()
                             giftStatusMessage = if (lang == AppLanguage.PERSIAN)
-                                "اطلاعات با فایربیس همگام‌سازی شد" else "Account synced with Firebase"
+                                "اطلاعات همگام‌سازی شد" else "Account synced"
                             isSuccessMessage = true
                         }
                     )

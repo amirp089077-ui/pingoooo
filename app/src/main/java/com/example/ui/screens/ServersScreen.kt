@@ -157,7 +157,7 @@ fun ServersScreen(
                             text = if (viewModel.serverList.isNotEmpty()) {
                                 AppStrings.serversAvailable(viewModel.serverList.size, lang)
                             } else {
-                                if (lang == AppLanguage.PERSIAN) "در حال اتصال به فایربیس..." else "Connecting to Firebase..."
+                                if (lang == AppLanguage.PERSIAN) "در حال اتصال به سرور..." else "Connecting to server..."
                             },
                             color = colors.textMuted,
                             fontSize = 13.sp,
@@ -173,7 +173,7 @@ fun ServersScreen(
                             isSpinning = viewModel.isRefreshingPings || viewModel.isSyncingFirestore,
                             spinAngle = spinAngle,
                             onClick = {
-                                viewModel.syncWithFirestore()
+                                viewModel.syncWithServer()
                                 viewModel.refreshPings()
                             }
                         )
@@ -301,9 +301,9 @@ fun ServersScreen(
                                 Spacer(modifier = Modifier.height(18.dp))
                                 Text(
                                     text = if (lang == AppLanguage.PERSIAN)
-                                        "در حال دریافت سرورها از فایربیس..."
+                                        "در حال دریافت سرورها..."
                                     else
-                                        "Loading servers from Firebase...",
+                                        "Loading servers...",
                                     color = colors.textPrimary,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Medium,
@@ -312,16 +312,16 @@ fun ServersScreen(
                             } else {
                                 Text(
                                     text = if (lang == AppLanguage.PERSIAN)
-                                        "هنوز سروری از فایربیس دریافت نشده است"
+                                        "هنوز سروری دریافت نشده است"
                                     else
-                                        "No servers loaded from Firebase",
+                                        "No servers loaded",
                                     color = colors.textMuted,
                                     fontSize = 14.5.sp,
                                     fontFamily = VazirmatnFontFamily
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Button(
-                                    onClick = { viewModel.syncWithFirestore() },
+                                    onClick = { viewModel.syncWithServer() },
                                     colors = ButtonDefaults.buttonColors(containerColor = colors.accentTeal),
                                     shape = RoundedCornerShape(12.dp)
                                 ) {
