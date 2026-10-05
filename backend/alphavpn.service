@@ -1,0 +1,16 @@
+[Unit]
+Description=Alpha VPN FastAPI Backend
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/alphavpn
+EnvironmentFile=/home/ubuntu/alphavpn/.env
+ExecStart=/home/ubuntu/alphavpn/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

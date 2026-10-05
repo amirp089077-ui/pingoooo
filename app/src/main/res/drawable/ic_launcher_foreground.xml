@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer decorative ring -->
+    <path
+        android:pathData="M54,26 C69.46,26 82,38.54 82,54 C82,69.46 69.46,82 54,82 C38.54,82 26,69.46 26,54 C26,38.54 38.54,26 54,26 Z"
+        android:strokeWidth="1.5"
+        android:fillColor="#15FFFFFF">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="26"
+                android:startY="54"
+                android:endX="82"
+                android:endY="54"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#00D2FF" />
+                <item android:offset="1.0" android:color="#FF7A00" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Inner circle fill -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,54m-26,0a26,26 0,1 1,52 0a26,26 0,1 1,-52 0" />
+
+    <!-- Cyan Arch of Alpha Ribbon 'A' -->
+    <path
+        android:pathData="M54,34 C49.5,34 45,41 40,51 C36.5,58 34,65 37,68 C39.5,70.5 44,67 47,61 C49,57 51,52 54,45 C57,52 59,57 61,61 C64,67 68.5,70.5 71,68 C74,65 71.5,58 68,51 C63,41 58.5,34 54,34 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="35"
+                android:startY="68"
+                android:endX="70"
+                android:endY="34"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#00779E" />
+                <item android:offset="0.5" android:color="#00A8D6" />
+                <item android:offset="1.0" android:color="#38BDF8" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Orange Crossing Ribbon Wings of 'A' -->
+    <path
+        android:pathData="M38,47 C44,55 50,65 54,66 C58,65 64,55 70,47 C72,44 71,43 69,45 C64,50 58,58 54,59 C50,58 44,50 39,45 C37,43 36,44 38,47 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="37"
+                android:startY="45"
+                android:endX="71"
+                android:endY="66"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF6B35" />
+                <item android:offset="0.5" android:color="#E05326" />
+                <item android:offset="1.0" android:color="#D34015" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Top highlight on 'A' apex -->
+    <path
+        android:pathData="M54,34 C52,34 49,38 46,45 C48,43 51,41 54,41 C57,41 60,43 62,45 C59,38 56,34 54,34 Z"
+        android:fillColor="#80E0F7FF" />
+</vector>

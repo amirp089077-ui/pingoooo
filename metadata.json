@@ -1,0 +1,6 @@
+{
+  "name": "ALPHA VPN",
+  "description": "اینترنت آزاد، سریع و امن - اپلیکیشن رسمی آلفا وی‌پی‌ان",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- اجازه HTTP به سرور شخصی -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">179.237.79.75</domain>
+    </domain-config>
+</network-security-config>
