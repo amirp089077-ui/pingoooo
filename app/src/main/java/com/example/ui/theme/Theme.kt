@@ -38,10 +38,13 @@ fun MyApplicationTheme(
         SideEffect {
             val window = (view.context as? Activity)?.window
             if (window != null) {
-                window.statusBarColor = AlphaBgStart.toArgb()
-                window.navigationBarColor = AlphaBgEnd.toArgb()
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
-                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
+                // رنگ status bar و navigation bar با تم سینک میشه
+                val bgColor = if (isDark) android.graphics.Color.parseColor("#081D22")
+                              else android.graphics.Color.parseColor("#EBF4F6")
+                window.statusBarColor     = bgColor
+                window.navigationBarColor = bgColor
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars     = !isDark
+                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDark
             }
         }
     }

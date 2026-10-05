@@ -261,6 +261,9 @@ class AlphaVpnViewModel(application: Application) : AndroidViewModel(application
                 refreshPings()
             }
 
+            // لود برنامه‌های واقعی دستگاه بعد از login
+            loadRealDeviceApps(getApplication())
+
             onResult(true, null)
         }
     }
@@ -385,7 +388,9 @@ class AlphaVpnViewModel(application: Application) : AndroidViewModel(application
         isSmartServer  = false
         selectedServer = server
         sessionManager.saveAppSettings(appLanguage, themeMode, adBlocking, directIranianSites, server.id)
-        startRealVpn(context ?: getApplication())
+        val ctx = context ?: getApplication<Application>()
+        if (vpnStatus != VpnStatus.DISCONNECTED) stopRealVpn(ctx)
+        startRealVpn(ctx)
     }
 
     fun selectSmartServerAndConnect(context: Context? = null): AppServer {

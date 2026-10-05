@@ -90,33 +90,15 @@ fun ServersScreen(
     var expandedCountries by remember { mutableStateOf(setOf("آلمان", "انگلیس", "سوئد", "فرانسه", "اسپانیا")) }
 
     val context = androidx.compose.ui.platform.LocalContext.current
-    val vpnPrepareLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            viewModel.startRealVpn(context)
-        }
-    }
 
+    // فقط یه بار connect — permission از MainActivity میاد نه اینجا
     val connectToServer: (com.example.ui.viewmodel.AppServer, String) -> Unit = { server, label ->
         viewModel.selectServerAndConnect(server, context)
-        val prepareIntent = android.net.VpnService.prepare(context)
-        if (prepareIntent != null) {
-            vpnPrepareLauncher.launch(prepareIntent)
-        } else {
-            viewModel.startRealVpn(context)
-        }
         onServerSelected(label)
     }
 
     val connectToSmartServer: () -> Unit = {
         val chosen = viewModel.selectSmartServerAndConnect(context)
-        val prepareIntent = android.net.VpnService.prepare(context)
-        if (prepareIntent != null) {
-            vpnPrepareLauncher.launch(prepareIntent)
-        } else {
-            viewModel.startRealVpn(context)
-        }
         onServerSelected("${chosen.country} - ${chosen.city}")
     }
 
