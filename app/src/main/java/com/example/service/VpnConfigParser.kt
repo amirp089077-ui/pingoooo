@@ -6,148 +6,107 @@ import android.util.Log
 import org.json.JSONObject
 
 data class ParsedVpnConfig(
-    val protocol: String = "vless",
-    val uuidOrPassword: String = "",
-    val serverHost: String = "",
-    val serverPort: Int = 443,
-    val sni: String = "",
-    val path: String = "",
-    val transportType: String = "tcp",
-    val security: String = "tls",
-    val remarks: String = ""
+    val protocol:    String = "vless",
+    val uuid:        String = "",
+    val password:    String = "",
+    val serverHost:  String = "",
+    val serverPort:  Int    = 443,
+    val network:     String = "tcp",
+    val security:    String = "tls",
+    val sni:         String = "",
+    val alpn:        String = "",
+    val fingerprint: String = "chrome",
+    val flow:        String = "",
+    val publicKey:   String = "",
+    val shortId:     String = "",
+    val path:        String = "",
+    val host:        String = "",
+    val method:      String = "",
+    val remarks:     String = ""
 )
 
 object VpnConfigParser {
     private const val TAG = "VpnConfigParser"
 
     fun parse(configUri: String?, fallbackHost: String, fallbackPort: Int): ParsedVpnConfig {
-        if (configUri.isNullOrBlank()) {
-            return ParsedVpnConfig(
-                protocol = "direct",
-                serverHost = fallbackHost,
-                serverPort = fallbackPort
-            )
-        }
-
-        val trimmed = configUri.trim()
+        if (configUri.isNullOrBlank()) return ParsedVpnConfig(
+            protocol = "freedom", serverHost = fallbackHost, serverPort = fallbackPort)
         return try {
+            val t = configUri.trim()
             when {
-                trimmed.startsWith("vless://", ignoreCase = true) -> parseVless(trimmed)
-                trimmed.startsWith("vmess://", ignoreCase = true) -> parseVmess(trimmed)
-                trimmed.startsWith("trojan://", ignoreCase = true) -> parseTrojan(trimmed)
-                trimmed.startsWith("ss://", ignoreCase = true) -> parseShadowsocks(trimmed)
-                else -> ParsedVpnConfig(
-                    protocol = "raw",
-                    serverHost = fallbackHost,
-                    serverPort = fallbackPort,
-                    remarks = trimmed
-                )
+                t.startsWith("vless://",  true) -> parseVless(t)
+                t.startsWith("vmess://",  true) -> parseVmess(t)
+                t.startsWith("trojan://", true) -> parseTrojan(t)
+                t.startsWith("ss://",     true) -> parseShadowsocks(t)
+                else -> ParsedVpnConfig(protocol = "freedom", serverHost = fallbackHost, serverPort = fallbackPort)
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to parse configUri, falling back to direct host:port: ${e.message}")
-            ParsedVpnConfig(
-                protocol = "fallback",
-                serverHost = fallbackHost,
-                serverPort = fallbackPort
-            )
+            Log.w(TAG, "parse failed: ${e.message}")
+            ParsedVpnConfig(protocol = "freedom", serverHost = fallbackHost, serverPort = fallbackPort)
         }
     }
 
-    private fun parseVless(uriString: String): ParsedVpnConfig {
-        val uri = Uri.parse(uriString)
-        val userInfo = uri.userInfo ?: ""
-        val host = uri.host ?: ""
-        val port = if (uri.port > 0) uri.port else 443
-        val query = uri.query ?: ""
-        val fragment = uri.fragment ?: ""
-
-        val params = uri.queryParameterNames.associateWith { uri.getQueryParameter(it) ?: "" }
-        val security = params["security"] ?: "reality"
-        val sni = params["sni"] ?: params["host"] ?: host
-        val type = params["type"] ?: "tcp"
-        val path = params["path"] ?: ""
-
+    private fun parseVless(uri: String): ParsedVpnConfig {
+        val u = Uri.parse(uri)
+        val p = u.queryParameterNames.associateWith { u.getQueryParameter(it) ?: "" }
         return ParsedVpnConfig(
-            protocol = "vless",
-            uuidOrPassword = userInfo,
-            serverHost = host,
-            serverPort = port,
-            sni = sni,
-            path = path,
-            transportType = type,
-            security = security,
-            remarks = fragment
-        )
+            protocol = "vless", uuid = u.userInfo ?: "",
+            serverHost = u.host ?: "", serverPort = u.port.takeIf { it > 0 } ?: 443,
+            network = p["type"] ?: "tcp", security = p["security"] ?: "tls",
+            sni = p["sni"] ?: p["host"] ?: u.host ?: "", alpn = p["alpn"] ?: "",
+            fingerprint = p["fp"] ?: "chrome", flow = p["flow"] ?: "",
+            publicKey = p["pbk"] ?: "", shortId = p["sid"] ?: "",
+            path = p["path"] ?: p["serviceName"] ?: "", host = p["host"] ?: "",
+            remarks = u.fragment ?: "")
     }
 
-    private fun parseTrojan(uriString: String): ParsedVpnConfig {
-        val uri = Uri.parse(uriString)
-        val password = uri.userInfo ?: ""
-        val host = uri.host ?: ""
-        val port = if (uri.port > 0) uri.port else 443
-        val sni = uri.getQueryParameter("sni") ?: host
-        val type = uri.getQueryParameter("type") ?: "tcp"
-
+    private fun parseVmess(uri: String): ParsedVpnConfig {
+        val raw  = uri.substringAfter("vmess://").trim()
+        val json = JSONObject(String(Base64.decode(raw, Base64.DEFAULT or Base64.NO_WRAP or Base64.NO_PADDING), Charsets.UTF_8))
         return ParsedVpnConfig(
-            protocol = "trojan",
-            uuidOrPassword = password,
-            serverHost = host,
-            serverPort = port,
-            sni = sni,
-            transportType = type,
-            security = "tls",
-            remarks = uri.fragment ?: ""
-        )
-    }
-
-    private fun parseVmess(uriString: String): ParsedVpnConfig {
-        val rawBase64 = uriString.substringAfter("vmess://").trim()
-        val decoded = String(Base64.decode(rawBase64, Base64.DEFAULT), Charsets.UTF_8)
-        val json = JSONObject(decoded)
-
-        return ParsedVpnConfig(
-            protocol = "vmess",
-            uuidOrPassword = json.optString("id"),
-            serverHost = json.optString("add"),
-            serverPort = json.optInt("port", 443),
+            protocol = "vmess", uuid = json.optString("id"),
+            serverHost = json.optString("add"), serverPort = json.optInt("port", 443),
+            network = json.optString("net", "tcp"),
+            security = json.optString("tls", "none").ifEmpty { "none" },
             sni = json.optString("sni", json.optString("host")),
-            path = json.optString("path"),
-            transportType = json.optString("net", "tcp"),
-            security = json.optString("tls", "tls"),
-            remarks = json.optString("ps")
-        )
+            alpn = json.optString("alpn", ""), fingerprint = json.optString("fp", "chrome"),
+            path = json.optString("path", ""), host = json.optString("host", ""),
+            remarks = json.optString("ps", ""))
     }
 
-    private fun parseShadowsocks(uriString: String): ParsedVpnConfig {
-        val afterScheme = uriString.substringAfter("ss://")
-        val mainPart = afterScheme.substringBefore("#")
-        val remarks = if (afterScheme.contains("#")) afterScheme.substringAfter("#") else ""
+    private fun parseTrojan(uri: String): ParsedVpnConfig {
+        val u = Uri.parse(uri)
+        val p = u.queryParameterNames.associateWith { u.getQueryParameter(it) ?: "" }
+        return ParsedVpnConfig(
+            protocol = "trojan", password = u.userInfo ?: "",
+            serverHost = u.host ?: "", serverPort = u.port.takeIf { it > 0 } ?: 443,
+            network = p["type"] ?: "tcp", security = "tls",
+            sni = p["sni"] ?: u.host ?: "", alpn = p["alpn"] ?: "",
+            fingerprint = p["fp"] ?: "chrome", path = p["path"] ?: "",
+            host = p["host"] ?: "", remarks = u.fragment ?: "")
+    }
 
-        return if (mainPart.contains("@")) {
-            val user = mainPart.substringBefore("@")
-            val hostPort = mainPart.substringAfter("@")
-            val host = hostPort.substringBefore(":")
-            val port = hostPort.substringAfter(":").toIntOrNull() ?: 443
-            ParsedVpnConfig(
-                protocol = "shadowsocks",
-                uuidOrPassword = user,
-                serverHost = host,
-                serverPort = port,
-                remarks = remarks
-            )
-        } else {
-            val decoded = String(Base64.decode(mainPart, Base64.DEFAULT), Charsets.UTF_8)
-            val user = decoded.substringBefore("@")
-            val hostPort = decoded.substringAfter("@")
-            val host = hostPort.substringBefore(":")
-            val port = hostPort.substringAfter(":").toIntOrNull() ?: 443
-            ParsedVpnConfig(
-                protocol = "shadowsocks",
-                uuidOrPassword = user,
-                serverHost = host,
-                serverPort = port,
-                remarks = remarks
-            )
+    private fun parseShadowsocks(uri: String): ParsedVpnConfig {
+        val after   = uri.substringAfter("ss://")
+        val remarks = after.substringAfter("#", "")
+        val main    = after.substringBefore("#")
+        val (userPart, hostPart) = if (main.contains("@"))
+            main.substringBefore("@") to main.substringAfter("@")
+        else {
+            val dec = String(Base64.decode(main, Base64.DEFAULT), Charsets.UTF_8)
+            dec.substringBefore("@") to dec.substringAfter("@")
         }
+        val (method, password) = try {
+            if (userPart.contains(":")) userPart.substringBefore(":") to userPart.substringAfter(":")
+            else {
+                val d = String(Base64.decode(userPart, Base64.DEFAULT), Charsets.UTF_8)
+                d.substringBefore(":") to d.substringAfter(":")
+            }
+        } catch (_: Exception) { "" to userPart }
+        return ParsedVpnConfig(
+            protocol = "ss", password = password, method = method,
+            serverHost = hostPart.substringBefore(":"),
+            serverPort = hostPart.substringAfterLast(":").toIntOrNull() ?: 443,
+            security = "none", remarks = remarks)
     }
 }

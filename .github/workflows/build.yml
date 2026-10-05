@@ -22,6 +22,29 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Download libv2ray.aar (xray-core)
+        run: |
+          mkdir -p app/libs
+          curl -L "https://github.com/2dust/AndroidLibXrayLite/releases/download/v26.9.30/libv2ray.aar" \
+            -o app/libs/libv2ray.aar
+          echo "libv2ray.aar: $(du -sh app/libs/libv2ray.aar | cut -f1)"
+
+      - name: Download hev-socks5-tunnel.aar
+        run: |
+          curl -L "https://github.com/heiher/hev-socks5-tunnel/releases/download/2.18.0/hev-socks5-tunnel.aar" \
+            -o app/libs/hev-socks5-tunnel.aar
+          echo "hev-socks5-tunnel.aar: $(du -sh app/libs/hev-socks5-tunnel.aar | cut -f1)"
+
+      - name: Download geo data files
+        run: |
+          mkdir -p app/src/main/assets
+          curl -L "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat" \
+            -o app/src/main/assets/geoip.dat
+          curl -L "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat" \
+            -o app/src/main/assets/geosite.dat
+          echo "geoip: $(du -sh app/src/main/assets/geoip.dat | cut -f1)"
+          echo "geosite: $(du -sh app/src/main/assets/geosite.dat | cut -f1)"
+
       - name: Generate debug keystore
         run: |
           mkdir -p ~/.android
@@ -32,37 +55,32 @@ jobs:
             -storepass android -keypass android \
             -dname "CN=Android Debug, O=Android, C=US"
 
-      - name: Create gradlew from scratch
+      - name: Setup Gradle wrapper
         run: |
-          # ساخت یه پروژه موقت برای گرفتن gradlew
-          mkdir -p /tmp/dummy
-          cd /tmp/dummy
-          cat > settings.gradle << 'EOF'
-          rootProject.name = 'dummy'
-          EOF
-          cat > build.gradle << 'EOF'
-          plugins { id 'base' }
-          EOF
-          wget -q https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -O /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d /tmp/
-          /tmp/gradle-9.3.1/bin/gradle wrapper --gradle-version 9.3.1 --distribution-type bin -q
-          # کپی به پروژه اصلی
-          cp /tmp/dummy/gradlew $GITHUB_WORKSPACE/gradlew
-          cp /tmp/dummy/gradle/wrapper/gradle-wrapper.jar $GITHUB_WORKSPACE/gradle/wrapper/gradle-wrapper.jar
-          cp /tmp/dummy/gradle/wrapper/gradle-wrapper.properties $GITHUB_WORKSPACE/gradle/wrapper/gradle-wrapper.properties
-          chmod +x $GITHUB_WORKSPACE/gradlew
+          chmod +x gradlew
 
-      - name: Delete configuration cache
-        run: rm -rf .gradle/configuration-cache
-
-      - name: Build Debug APK
+      - name: Build Debug APK (all ABIs)
         run: ./gradlew assembleDebug --no-daemon --no-configuration-cache
         env:
           GRADLE_OPTS: "-Djava.awt.headless=true"
 
-      - name: Upload APK
+      - name: Upload arm64-v8a APK
         uses: actions/upload-artifact@v4
         with:
-          name: alpha-vpn-debug-${{ github.run_number }}
-          path: app/build/outputs/apk/debug/*.apk
+          name: alpha-vpn-arm64-${{ github.run_number }}
+          path: app/build/outputs/apk/debug/*arm64*.apk
+          retention-days: 30
+
+      - name: Upload armeabi-v7a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: alpha-vpn-armv7-${{ github.run_number }}
+          path: app/build/outputs/apk/debug/*armeabi*.apk
+          retention-days: 30
+
+      - name: Upload universal APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: alpha-vpn-universal-${{ github.run_number }}
+          path: app/build/outputs/apk/debug/*universal*.apk
           retention-days: 30

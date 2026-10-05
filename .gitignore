@@ -24,3 +24,14 @@ keystore_b64.txt
 server/key.pem
 backend/.env
 backend/alphavpn.db
+
+# AAR های بزرگ — workflow دانلود میکنه
+app/libs/libv2ray.aar
+app/libs/hev-socks5-tunnel.aar
+
+# geo data — workflow دانلود میکنه
+app/src/main/assets/geoip.dat
+app/src/main/assets/geosite.dat
+
+# alpha_app (کپی قدیمی)
+alpha_app/

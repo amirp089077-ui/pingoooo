@@ -61,22 +61,15 @@ import com.example.ui.viewmodel.VpnStatus
 @Composable
 fun HomeScreen(
     viewModel: AlphaVpnViewModel,
+    activity: com.example.MainActivity,
     onNavigateToServers: () -> Unit,
     onNavigateToSubscription: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val colors = LocalAlphaAppColors.current
     val lang = viewModel.appLanguage
-
     val isRtl = lang == AppLanguage.PERSIAN
     val context = androidx.compose.ui.platform.LocalContext.current
-    val vpnPrepareLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            viewModel.startRealVpn(context)
-        }
-    }
 
     CompositionLocalProvider(LocalLayoutDirection provides if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
         DarkThemeBackground(modifier = modifier) {
@@ -186,11 +179,9 @@ fun HomeScreen(
                         if (viewModel.vpnStatus == VpnStatus.CONNECTED) {
                             viewModel.stopRealVpn(context)
                         } else {
-                            val prepareIntent = android.net.VpnService.prepare(context)
-                            if (prepareIntent != null) {
-                                vpnPrepareLauncher.launch(prepareIntent)
-                            } else {
-                                viewModel.startRealVpn(context)
+                            activity.requestVpnPermission { granted ->
+                                viewModel.onVpnPermissionResult(granted)
+                                if (granted) viewModel.startRealVpn(context)
                             }
                         }
                     },

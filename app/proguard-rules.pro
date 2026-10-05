@@ -19,3 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# libv2ray / xray-core (gomobile)
+-keep class libv2ray.** { *; }
+-keep class go.** { *; }
+-keepclassmembers class libv2ray.** { *; }
+-keepclassmembers class go.** { *; }
+
+# hev-socks5-tunnel
+-keep class hev.** { *; }
+
+# gomobile JNI
+-keepclasseswithmembernames class * { native <methods>; }

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.example.MainActivity
 import com.example.ui.components.FloatingBottomNavigationBar
 import com.example.ui.components.MainTab
 import com.example.ui.theme.ProvideAlphaColors
@@ -28,6 +29,7 @@ import com.example.ui.viewmodel.AlphaVpnViewModel
 @Composable
 fun MainDarkApp(
     viewModel: AlphaVpnViewModel,
+    activity: MainActivity,
     onLogoutToLogin: () -> Unit,
     modifier: Modifier = Modifier,
     initialTab: MainTab = MainTab.HOME
@@ -48,6 +50,7 @@ fun MainDarkApp(
                         MainTab.HOME -> {
                             HomeScreen(
                                 viewModel = viewModel,
+                                activity = activity,
                                 onNavigateToServers = { currentTab = MainTab.SERVERS },
                                 onNavigateToSubscription = { currentTab = MainTab.SUBSCRIPTION }
                             )

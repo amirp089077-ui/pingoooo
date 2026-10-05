@@ -310,6 +310,11 @@ class AlphaVpnViewModel(application: Application) : AndroidViewModel(application
     fun updateUsername(newName: String) { if (newName.isNotBlank()) username = newName.trim() }
 
     // ─────────────────────────── VPN ─────────────────────────────────
+
+    fun onVpnPermissionResult(granted: Boolean) {
+        if (!granted) vpnStatus = VpnStatus.DISCONNECTED
+    }
+
     fun startRealVpn(context: Context) {
         if (totalRemainingGb <= 0f || remainingDays <= 0) { isQuotaExceeded = true; return }
         vpnStatus = VpnStatus.CONNECTING
