@@ -22,10 +22,14 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Install Gradle wrapper
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -O /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp/
+          /tmp/gradle-9.3.1/bin/gradle wrapper --gradle-version 9.3.1 --distribution-type bin
+          chmod +x gradlew
 
-      - name: Build Debug APK (با debug keystore گوگل)
+      - name: Build Debug APK
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
