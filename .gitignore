@@ -35,3 +35,11 @@ app/src/main/assets/geosite.dat
 
 # alpha_app (کپی قدیمی)
 alpha_app/
+
+# فایل‌های اضافی
+metadata.json
+server/key.pem
+*.zip
+iransans_bold.ttf
+app/src/androidTest/
+app/src/test/
