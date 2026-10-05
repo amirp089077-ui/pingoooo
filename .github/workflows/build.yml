@@ -32,15 +32,33 @@ jobs:
             -storepass android -keypass android \
             -dname "CN=Android Debug, O=Android, C=US"
 
-      - name: Install Gradle wrapper
+      - name: Create gradlew from scratch
         run: |
+          # ساخت یه پروژه موقت برای گرفتن gradlew
+          mkdir -p /tmp/dummy
+          cd /tmp/dummy
+          cat > settings.gradle << 'EOF'
+          rootProject.name = 'dummy'
+          EOF
+          cat > build.gradle << 'EOF'
+          plugins { id 'base' }
+          EOF
           wget -q https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -O /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /tmp/
-          /tmp/gradle-9.3.1/bin/gradle wrapper --gradle-version 9.3.1 --distribution-type bin
-          chmod +x gradlew
+          /tmp/gradle-9.3.1/bin/gradle wrapper --gradle-version 9.3.1 --distribution-type bin -q
+          # کپی به پروژه اصلی
+          cp /tmp/dummy/gradlew $GITHUB_WORKSPACE/gradlew
+          cp /tmp/dummy/gradle/wrapper/gradle-wrapper.jar $GITHUB_WORKSPACE/gradle/wrapper/gradle-wrapper.jar
+          cp /tmp/dummy/gradle/wrapper/gradle-wrapper.properties $GITHUB_WORKSPACE/gradle/wrapper/gradle-wrapper.properties
+          chmod +x $GITHUB_WORKSPACE/gradlew
+
+      - name: Delete configuration cache
+        run: rm -rf .gradle/configuration-cache
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Djava.awt.headless=true"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
