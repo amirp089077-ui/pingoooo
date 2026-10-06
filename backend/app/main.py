@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import create_tables, SessionLocal, seed_default_data
 from app.routers import auth, users, servers, config, giftcodes, admin
+from app.routers import admin_auth, admin_rbac
 
 
 # ─────────────────── Startup ────────────────────
@@ -52,7 +53,9 @@ app.include_router(users.router)
 app.include_router(servers.router)
 app.include_router(config.router)
 app.include_router(giftcodes.router)
-app.include_router(admin.router)
+app.include_router(admin.router)        # legacy admin با X-Admin-Key
+app.include_router(admin_auth.router)   # لاگین ادمین JWT
+app.include_router(admin_rbac.router)   # مدیریت ادمین‌ها، نقش‌ها، لاگ
 
 
 # ─────────────────── Health ─────────────────────
